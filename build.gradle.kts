@@ -1,5 +1,7 @@
 plugins {
     java
+    application
+    id("org.graalvm.buildtools.native") version "0.9.4"
 }
 
 group = "org.example"
@@ -7,6 +9,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -17,4 +20,14 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+}
+
+application {
+    mainClass.set("locks.Locks")
+}
+
+nativeBuild {
+    // Workaround. Graal sets US/en by default
+    buildArgs.add("-Duser.country=CH")
+    buildArgs.add("-Duser.language=de")
 }
