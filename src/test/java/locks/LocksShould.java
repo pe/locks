@@ -45,10 +45,11 @@ class LocksShould {
    void convertUnlockLockToDuration() {
       Event unlock = new Event(times.next(), UNLOCK);
       Event lock = new Event(times.next(), LOCK);
+      Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock));
 
-      assertIterableEquals(List.of(new Duration(unlock.at(), lock.at())), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
    @Test
@@ -74,10 +75,11 @@ class LocksShould {
       Event unlock = new Event(times.next(), UNLOCK);
       Event lock1 = new Event(times.next(), LOCK);
       Event lock2 = new Event(times.next(), LOCK);
+      final Duration expectedDuration = new Duration(unlock.at(), lock2.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock1, lock2));
 
-      assertIterableEquals(List.of(new Duration(unlock.at(), lock2.at())), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
    @Test
@@ -85,10 +87,11 @@ class LocksShould {
       Event unlock1 = new Event(times.next(), UNLOCK);
       Event unlock2 = new Event(times.next(), UNLOCK);
       Event lock = new Event(times.next(), LOCK);
+      final Duration expectedDuration = new Duration(unlock1.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock1, unlock2, lock));
 
-      assertIterableEquals(List.of(new Duration(unlock1.at(), lock.at())), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
    @Test
@@ -96,10 +99,11 @@ class LocksShould {
       Event lockBeforeUnlock = new Event(times.next(), LOCK);
       Event unlock = new Event(times.next(), UNLOCK);
       Event lock = new Event(times.next(), LOCK);
+      final Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lockBeforeUnlock, unlock, lock));
 
-      assertIterableEquals(List.of(new Duration(unlock.at(), lock.at())), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
    @Test
@@ -107,10 +111,11 @@ class LocksShould {
       Event unlock = new Event(times.next(), UNLOCK);
       Event lock = new Event(times.next(), LOCK);
       Event unmatchedLock = new Event(times.next(), UNLOCK);
+      final Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock, unmatchedLock));
 
-      assertIterableEquals(List.of(new Duration(unlock.at(), lock.at())), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
    final Iterator<LocalDateTime> times = new Iterator<>() {
