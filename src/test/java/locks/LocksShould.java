@@ -2,6 +2,7 @@ package locks;
 
 import static java.time.Month.AUGUST;
 import static java.time.Month.SEPTEMBER;
+import static java.util.Collections.emptyList;
 import static locks.Locks.Event.Type.LOCK;
 import static locks.Locks.Event.Type.UNLOCK;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,7 +38,7 @@ class LocksShould {
 
       StreamEx<Event> events = Locks.toEvents(input);
 
-      assertIterableEquals(Collections.emptyList(), events.toList());
+      assertIterableEquals(emptyList(), events.toList());
    }
 
    @Test
@@ -57,7 +57,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lock));
 
-      assertIterableEquals(Collections.emptyList(), durations);
+      assertIterableEquals(emptyList(), durations);
    }
 
    @Test
@@ -66,7 +66,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock));
 
-      assertIterableEquals(Collections.emptyList(), durations);
+      assertIterableEquals(emptyList(), durations);
    }
 
    @Test
