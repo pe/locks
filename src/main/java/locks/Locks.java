@@ -5,16 +5,13 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import one.util.streamex.StreamEx;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,16 +26,14 @@ public class Locks {
    public static void main(String[] args) {
       StreamEx<Event> events = toEvents(System.in);
       StreamEx<Duration> durations = toDurations(events);
-      Map<LocalDate, List<Duration>> byDay =
-            durations.groupingBy(duration -> duration.start.toLocalDate(), TreeMap::new, Collectors.toList());
-      for (Map.Entry<LocalDate, List<Duration>> day : byDay.entrySet()) {
-         System.out.println(SHORT_DATE.format(day.getKey()) +
-                            "\t\t" +
-                            day.getValue()
-                                  .stream()
-                                  .map(duration -> duration.start.format(SHORT_TIME) + '\t' + duration.stop.format(SHORT_TIME))
-                                  .collect(Collectors.joining("\t")));
-      }
+      durations.mapToEntry(duration -> duration.start.toLocalDate(), Function.identity())
+            .collapseKeys()
+            .forKeyValue((day, durationsOfTheDay) -> {
+               String eventsOfTheDay = durationsOfTheDay.stream()
+                     .map(duration -> duration.start.format(SHORT_TIME) + '\t' + duration.stop.format(SHORT_TIME))
+                     .collect(Collectors.joining("\t"));
+               System.out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay);
+            });
    }
 
    static StreamEx<Event> toEvents(InputStream input) {
