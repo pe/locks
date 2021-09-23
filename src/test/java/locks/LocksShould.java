@@ -113,7 +113,7 @@ class LocksShould {
       assertIterableEquals(List.of(new Duration(unlock.at(), lock.at())), durations.toList());
    }
 
-   Iterator<LocalDateTime> times = new Iterator<>() {
+   final Iterator<LocalDateTime> times = new Iterator<>() {
       private static LocalDateTime at = LocalDateTime.of(2021, AUGUST, 31, 0, 0, 0);
 
       @Override
