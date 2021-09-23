@@ -43,8 +43,8 @@ class LocksShould {
 
    @Test
    void convertUnlockLockToDuration() {
-      Event unlock = new Event(times.next(), UNLOCK);
-      Event lock = new Event(times.next(), LOCK);
+      Event unlock = new Event(at.next(), UNLOCK);
+      Event lock = new Event(at.next(), LOCK);
       Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock));
@@ -54,7 +54,7 @@ class LocksShould {
 
    @Test
    void doNothingOnSingleLock() {
-      Event lock = new Event(times.next(), LOCK);
+      Event lock = new Event(at.next(), LOCK);
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lock));
 
@@ -63,7 +63,7 @@ class LocksShould {
 
    @Test
    void doNothingOnSingleUnlock() {
-      Event unlock = new Event(times.next(), UNLOCK);
+      Event unlock = new Event(at.next(), UNLOCK);
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock));
 
@@ -72,9 +72,9 @@ class LocksShould {
 
    @Test
    void ignoreDoubleLock() {
-      Event unlock = new Event(times.next(), UNLOCK);
-      Event lock1 = new Event(times.next(), LOCK);
-      Event lock2 = new Event(times.next(), LOCK);
+      Event unlock = new Event(at.next(), UNLOCK);
+      Event lock1 = new Event(at.next(), LOCK);
+      Event lock2 = new Event(at.next(), LOCK);
       final Duration expectedDuration = new Duration(unlock.at(), lock2.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock1, lock2));
@@ -84,9 +84,9 @@ class LocksShould {
 
    @Test
    void ignoreDoubleUnlock() {
-      Event unlock1 = new Event(times.next(), UNLOCK);
-      Event unlock2 = new Event(times.next(), UNLOCK);
-      Event lock = new Event(times.next(), LOCK);
+      Event unlock1 = new Event(at.next(), UNLOCK);
+      Event unlock2 = new Event(at.next(), UNLOCK);
+      Event lock = new Event(at.next(), LOCK);
       final Duration expectedDuration = new Duration(unlock1.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock1, unlock2, lock));
@@ -96,9 +96,9 @@ class LocksShould {
 
    @Test
    void ignoreLocksBeforeFirstUnlock() {
-      Event lockBeforeUnlock = new Event(times.next(), LOCK);
-      Event unlock = new Event(times.next(), UNLOCK);
-      Event lock = new Event(times.next(), LOCK);
+      Event lockBeforeUnlock = new Event(at.next(), LOCK);
+      Event unlock = new Event(at.next(), UNLOCK);
+      Event lock = new Event(at.next(), LOCK);
       final Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lockBeforeUnlock, unlock, lock));
@@ -108,9 +108,9 @@ class LocksShould {
 
    @Test
    void ignoreUnmatchedUnlock() {
-      Event unlock = new Event(times.next(), UNLOCK);
-      Event lock = new Event(times.next(), LOCK);
-      Event unmatchedLock = new Event(times.next(), UNLOCK);
+      Event unlock = new Event(at.next(), UNLOCK);
+      Event lock = new Event(at.next(), LOCK);
+      Event unmatchedLock = new Event(at.next(), UNLOCK);
       final Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock, unmatchedLock));
@@ -118,8 +118,8 @@ class LocksShould {
       assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
 
-   final Iterator<LocalDateTime> times = new Iterator<>() {
-      private static LocalDateTime at = LocalDateTime.of(2021, AUGUST, 31, 0, 0, 0);
+   final Iterator<LocalDateTime> at = new Iterator<>() {
+      private static LocalDateTime at = LocalDateTime.of(2021, AUGUST, 31, 0, 0);
 
       @Override
       public boolean hasNext() {
