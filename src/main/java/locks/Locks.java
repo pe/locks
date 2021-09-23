@@ -30,7 +30,8 @@ public class Locks {
             .collapseKeys()
             .forKeyValue((day, durationsOfTheDay) -> {
                String eventsOfTheDay = durationsOfTheDay.stream()
-                     .map(duration -> duration.start.format(SHORT_TIME) + '\t' + duration.stop.format(SHORT_TIME))
+                     .flatMap(duration -> StreamEx.of(duration.start, duration.stop))
+                     .map(event -> event.format(SHORT_TIME))
                      .collect(Collectors.joining("\t"));
                System.out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay);
             });
