@@ -51,7 +51,7 @@ public class Locks {
             .dropWhile(Event::isLock)
             .collapse(Event::bothAreUnlock, selectFirst())
             .collapse(Event::bothAreLock, selectLast())
-            .pairMap((unlock, lock) -> unlock.isUnlock() ? new Duration(unlock.at, lock.at) : null)
+            .pairMap((e1, e2) -> e1.isUnlock() ? new Duration(e1.at, e2.at) : null)
             .nonNull()
             .intervalMap((d1, d2) -> MINUTES.between(d1.stop, d2.start) < 15, (d1, d2) -> new Duration(d1.start, d2.stop));
    }
