@@ -107,13 +107,13 @@ class LocksShould {
    }
 
    @Test
-   void ignoreUnmatchedUnlock() {
+   void ignoreUnlocksAfterLastLock() {
       Event unlock = new Event(at.next(), UNLOCK);
       Event lock = new Event(at.next(), LOCK);
-      Event unmatchedLock = new Event(at.next(), UNLOCK);
+      Event unmatchedUnlock = new Event(at.next(), UNLOCK);
       final Duration expectedDuration = new Duration(unlock.at(), lock.at());
 
-      StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock, unmatchedLock));
+      StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock, unmatchedUnlock));
 
       assertIterableEquals(List.of(expectedDuration), durations.toList());
    }
