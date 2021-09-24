@@ -5,6 +5,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import one.util.streamex.StreamEx;
 
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -26,15 +27,7 @@ public class Locks {
    public static void main(String[] args) {
       StreamEx<Event> events = toEvents(System.in);
       StreamEx<Duration> durations = toDurations(events);
-      durations.mapToEntry(duration -> duration.start.toLocalDate(), Function.identity())
-            .collapseKeys()
-            .forKeyValue((day, durationsOfTheDay) -> {
-               String eventsOfTheDay = durationsOfTheDay.stream()
-                     .flatMap(duration -> StreamEx.of(duration.start, duration.stop))
-                     .map(event -> event.format(SHORT_TIME))
-                     .collect(Collectors.joining("\t"));
-               System.out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay);
-            });
+      print(System.out, durations);
    }
 
    static StreamEx<Event> toEvents(InputStream input) {
@@ -58,6 +51,18 @@ public class Locks {
 
    private static BinaryOperator<Event> selectLast() {
       return (u, v) -> v;
+   }
+   
+   static void print(PrintStream out, StreamEx<Duration> durations) {
+      durations.mapToEntry(duration -> duration.start.toLocalDate(), Function.identity())
+            .collapseKeys()
+            .forKeyValue((day, durationsOfTheDay) -> {
+               String eventsOfTheDay = durationsOfTheDay.stream()
+                     .flatMap(duration -> StreamEx.of(duration.start, duration.stop))
+                     .map(event -> event.format(SHORT_TIME))
+                     .collect(Collectors.joining("\t"));
+               out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay);
+            });
    }
 
    record Duration(LocalDateTime start, LocalDateTime stop) {
