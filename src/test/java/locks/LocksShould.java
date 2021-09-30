@@ -29,7 +29,7 @@ class LocksShould {
 
       StreamEx<Event> events = Locks.toEvents(input);
 
-      assertIterableEquals(List.of(new Event(dateTime1, LOCK), new Event(dateTime2, UNLOCK)), events.toList());
+      assertIterableEquals(List.of(new Event(dateTime1, LOCK), new Event(dateTime2, UNLOCK)), events);
    }
 
    @Test
@@ -38,7 +38,7 @@ class LocksShould {
 
       StreamEx<Event> events = Locks.toEvents(input);
 
-      assertIterableEquals(emptyList(), events.toList());
+      assertIterableEquals(emptyList(), events);
    }
 
    @Test
@@ -49,7 +49,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock));
 
-      assertIterableEquals(List.of(expectedDuration), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations);
    }
 
    @Test
@@ -70,7 +70,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock1, lock2));
 
-      assertIterableEquals(List.of(expectedDuration), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations);
    }
 
    @Test
@@ -82,7 +82,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock1, unlock2, lock));
 
-      assertIterableEquals(List.of(expectedDuration), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations);
    }
 
    @Test
