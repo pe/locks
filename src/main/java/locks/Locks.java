@@ -5,11 +5,14 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.teeing;
 
+import one.util.streamex.AbstractStreamEx;
+import one.util.streamex.EntryStream;
 import one.util.streamex.MoreCollectors;
 import one.util.streamex.StreamEx;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
@@ -17,7 +20,6 @@ import java.time.format.FormatStyle;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.BinaryOperator;
-import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
@@ -33,7 +35,8 @@ public class Locks {
    public static void main(String[] args) {
       StreamEx<Event> events = toEvents(System.in);
       StreamEx<Duration> durations = toDurations(events);
-      print(System.out, durations);
+      EntryStream<LocalDate, StreamEx<LocalDateTime>> eventsByDate = groupByDate(durations);
+      print(System.out, eventsByDate);
    }
 
    static StreamEx<Event> toEvents(InputStream input) {
@@ -66,16 +69,17 @@ public class Locks {
       return collectingAndThen(MoreCollectors.last(), Optional::get);
    }
 
-   static void print(PrintStream out, StreamEx<Duration> durations) {
-      durations.mapToEntry(duration -> duration.start.toLocalDate(), Function.identity())
-            .collapseKeys()
-            .forKeyValue((day, durationsOfTheDay) -> {
-               String eventsOfTheDay = durationsOfTheDay.stream()
-                     .flatMap(duration -> StreamEx.of(duration.start, duration.stop))
-                     .map(event -> event.format(SHORT_TIME))
-                     .collect(Collectors.joining("\t"));
-               out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay);
-            });
+   static EntryStream<LocalDate, StreamEx<LocalDateTime>> groupByDate(StreamEx<Duration> durations) {
+      return durations
+            .mapToEntry(d -> d.start.toLocalDate(), d -> StreamEx.of(d.start, d.stop))
+            .collapseKeys(AbstractStreamEx::append);
+   }
+
+   static void print(PrintStream out, EntryStream<LocalDate, StreamEx<LocalDateTime>> eventsByDate) {
+      eventsByDate
+            .forKeyValue((day, eventsOfTheDay) -> out.println(day.format(SHORT_DATE) + "\t\t" + eventsOfTheDay
+                  .map(event -> event.format(SHORT_TIME))
+                  .collect(Collectors.joining("\t"))));
    }
 
    record Duration(LocalDateTime start, LocalDateTime stop) {
