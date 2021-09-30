@@ -62,15 +62,6 @@ class LocksShould {
    }
 
    @Test
-   void doNothingOnSingleUnlock() {
-      Event unlock = new Event(at.next(), UNLOCK);
-
-      StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock));
-
-      assertIterableEquals(emptyList(), durations);
-   }
-
-   @Test
    void ignoreDoubleLock() {
       Event unlock = new Event(at.next(), UNLOCK);
       Event lock1 = new Event(at.next(), LOCK);
@@ -103,19 +94,7 @@ class LocksShould {
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lockBeforeUnlock, unlock, lock));
 
-      assertIterableEquals(List.of(expectedDuration), durations.toList());
-   }
-
-   @Test
-   void ignoreUnlocksAfterLastLock() {
-      Event unlock = new Event(at.next(), UNLOCK);
-      Event lock = new Event(at.next(), LOCK);
-      Event unmatchedUnlock = new Event(at.next(), UNLOCK);
-      final Duration expectedDuration = new Duration(unlock.at(), lock.at());
-
-      StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock, unmatchedUnlock));
-
-      assertIterableEquals(List.of(expectedDuration), durations.toList());
+      assertIterableEquals(List.of(expectedDuration), durations);
    }
 
    final Iterator<LocalDateTime> at = new Iterator<>() {

@@ -1,7 +1,11 @@
 package locks;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.teeing;
 
+import one.util.streamex.MoreCollectors;
 import one.util.streamex.StreamEx;
 
 import java.io.InputStream;
@@ -10,11 +14,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.FormatStyle;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,8 +46,7 @@ public class Locks {
             .dropWhile(Event::isLock)
             .collapse(Event::bothAreUnlock, selectFirst())
             .collapse(Event::bothAreLock, selectLast())
-            .pairMap((e1, e2) -> e1.isUnlock() ? new Duration(e1.at, e2.at) : null)
-            .nonNull()
+            .collapse(Event::lockAndUnlock, mapping(Event::at, teeing(first(), last(), Duration::new)))
             .intervalMap((d1, d2) -> MINUTES.between(d1.stop, d2.start) < 15, (d1, d2) -> new Duration(d1.start, d2.stop));
    }
 
@@ -52,7 +57,15 @@ public class Locks {
    private static BinaryOperator<Event> selectLast() {
       return (u, v) -> v;
    }
-   
+
+   private static <X> Collector<X, ?, X> first() {
+      return collectingAndThen(MoreCollectors.first(), Optional::get);
+   }
+
+   private static <X> Collector<X, ?, X> last() {
+      return collectingAndThen(MoreCollectors.last(), Optional::get);
+   }
+
    static void print(PrintStream out, StreamEx<Duration> durations) {
       durations.mapToEntry(duration -> duration.start.toLocalDate(), Function.identity())
             .collapseKeys()
@@ -94,6 +107,10 @@ public class Locks {
 
       private static boolean bothAreUnlock(Event event1, Event event2) {
          return event1.isUnlock() && event2.isUnlock();
+      }
+
+      private static boolean lockAndUnlock(Event event1, Event event2) {
+         return event1.isUnlock() && event2.isLock();
       }
 
       enum Type {
