@@ -34,6 +34,7 @@ public class Locks {
 
    public static void main(String[] args) {
       StreamEx<Event> events = toEvents(System.in);
+      events.append(new Event(LocalDateTime.now(), Event.Type.LOCK));
       StreamEx<Duration> durations = toDurations(events);
       EntryStream<LocalDate, StreamEx<LocalDateTime>> eventsByDate = groupByDate(durations);
       print(System.out, eventsByDate);
