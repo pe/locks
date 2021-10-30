@@ -3,6 +3,7 @@ package locks;
 import static java.time.Month.AUGUST;
 import static java.time.Month.SEPTEMBER;
 import static java.util.Collections.emptyList;
+import static locks.Locks.Event.Type.IGNORED;
 import static locks.Locks.Event.Type.LOCK;
 import static locks.Locks.Event.Type.UNLOCK;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -39,6 +40,18 @@ class LocksShould {
       StreamEx<Event> events = Locks.toEvents(input);
 
       assertIterableEquals(emptyList(), events);
+   }
+
+   @Test
+   void ignoreOtherEventTypes() {
+      var input = new ByteArrayInputStream(("""
+            2021-08-31 22:28:00.841 Df logind[132:54af3a] [com.apple.login:Logind_General] -[SessionAgent SA_SetSessionStateForUser:state:reply:]:536: state set to: 0
+            """).getBytes());
+      var dateTime1 = LocalDateTime.of(2021, AUGUST, 31, 22, 28, 0, 841000000);
+
+      StreamEx<Event> events = Locks.toEvents(input);
+
+      assertIterableEquals(List.of(new Event(dateTime1, IGNORED)), events);
    }
 
    @Test
