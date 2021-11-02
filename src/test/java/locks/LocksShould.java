@@ -62,9 +62,9 @@ class LocksShould {
 
    @Test
    void convertUnlockLockToDuration() {
-      Event unlock = new Event(at.next(), UNLOCK);
-      Event lock = new Event(at.next(), LOCK);
-      Duration expectedDuration = new Duration(unlock.at(), lock.at());
+      var unlock = new Event(at.next(), UNLOCK);
+      var lock = new Event(at.next(), LOCK);
+      var expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock));
 
@@ -73,7 +73,7 @@ class LocksShould {
 
    @Test
    void doNothingOnSingleLock() {
-      Event lock = new Event(at.next(), LOCK);
+      var lock = new Event(at.next(), LOCK);
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lock));
 
@@ -82,10 +82,10 @@ class LocksShould {
 
    @Test
    void ignoreDoubleLock() {
-      Event unlock = new Event(at.next(), UNLOCK);
-      Event lock1 = new Event(at.next(), LOCK);
-      Event lock2 = new Event(at.next(), LOCK);
-      final Duration expectedDuration = new Duration(unlock.at(), lock2.at());
+      var unlock = new Event(at.next(), UNLOCK);
+      var lock1 = new Event(at.next(), LOCK);
+      var lock2 = new Event(at.next(), LOCK);
+      var expectedDuration = new Duration(unlock.at(), lock2.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock, lock1, lock2));
 
@@ -94,10 +94,10 @@ class LocksShould {
 
    @Test
    void ignoreDoubleUnlock() {
-      Event unlock1 = new Event(at.next(), UNLOCK);
-      Event unlock2 = new Event(at.next(), UNLOCK);
-      Event lock = new Event(at.next(), LOCK);
-      final Duration expectedDuration = new Duration(unlock1.at(), lock.at());
+      var unlock1 = new Event(at.next(), UNLOCK);
+      var unlock2 = new Event(at.next(), UNLOCK);
+      var lock = new Event(at.next(), LOCK);
+      var expectedDuration = new Duration(unlock1.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(unlock1, unlock2, lock));
 
@@ -106,10 +106,10 @@ class LocksShould {
 
    @Test
    void ignoreLocksBeforeFirstUnlock() {
-      Event lockBeforeUnlock = new Event(at.next(), LOCK);
-      Event unlock = new Event(at.next(), UNLOCK);
-      Event lock = new Event(at.next(), LOCK);
-      final Duration expectedDuration = new Duration(unlock.at(), lock.at());
+      var lockBeforeUnlock = new Event(at.next(), LOCK);
+      var unlock = new Event(at.next(), UNLOCK);
+      var lock = new Event(at.next(), LOCK);
+      var expectedDuration = new Duration(unlock.at(), lock.at());
 
       StreamEx<Duration> durations = Locks.toDurations(StreamEx.of(lockBeforeUnlock, unlock, lock));
 
