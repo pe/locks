@@ -14,11 +14,17 @@ import one.util.streamex.StreamEx;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 class LocksShould {
+   static {
+      Locale.setDefault(new Locale("de", "CH"));
+   }
+
    @Test
    void parseSimpleLines() {
       var input = new ByteArrayInputStream(("""
@@ -110,7 +116,25 @@ class LocksShould {
       assertIterableEquals(List.of(expectedDuration), durations);
    }
 
-   final Iterator<LocalDateTime> at = new Iterator<>() {
+   @Test
+   void format() {
+      var day1 = LocalDate.of(2021, AUGUST, 2);
+      var day2 = LocalDate.of(2021, AUGUST, 31);
+
+      var d1 = duration(day1, 10, 11);
+      var d2 = duration(day1, 12, 13);
+      var d3 = duration(day2, 10, 11);
+      var expected = List.of(
+            "02.08.21		10:00	11:00	12:00	13:00",
+            "31.08.21		10:00	11:00"
+      );
+
+      var strings = Locks.format(StreamEx.of(d1, d2, d3));
+
+      assertIterableEquals(expected, strings);
+   }
+
+   private final Iterator<LocalDateTime> at = new Iterator<>() {
       private static LocalDateTime at = LocalDateTime.of(2021, AUGUST, 31, 0, 0);
 
       @Override
@@ -124,4 +148,8 @@ class LocksShould {
          return at;
       }
    };
+
+   private static Duration duration(LocalDate day, int startHour, int stopHour) {
+      return new Duration(day.atTime(startHour, 0), day.atTime(stopHour, 0));
+   }
 }
