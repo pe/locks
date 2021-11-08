@@ -1,7 +1,7 @@
 plugins {
     java
     application
-    id("org.graalvm.buildtools.native") version "0.9.4"
+    id("org.graalvm.buildtools.native") version "0.9.7"
 }
 
 group = "org.example"
@@ -25,8 +25,12 @@ application {
     mainClass.set("locks.Locks")
 }
 
-nativeBuild {
-    // Workaround. Graal sets US/en by default
-    buildArgs.add("-Duser.country=CH")
-    buildArgs.add("-Duser.language=de")
+graalvmNative {
+    binaries {
+        named("main") {
+            // Workaround. Graal sets US/en by default
+            buildArgs.add("-Duser.country=CH")
+            buildArgs.add("-Duser.language=de")
+        }
+    }
 }
