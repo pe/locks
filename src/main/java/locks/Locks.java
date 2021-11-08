@@ -30,8 +30,7 @@ public class Locks {
     private static final DateTimeFormatter SHORT_TIME = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT);
 
     public static void main(String[] args) {
-        StreamEx<Event> events = toEvents(System.in);
-        events.append(new Event(LocalDateTime.now(), Event.Type.LOCK));
+        StreamEx<Event> events = toEvents(System.in).append(new Event(LocalDateTime.now(), Event.Type.LOCK));
         StreamEx<Duration> durations = toDurations(events);
         StreamEx<String> strings = format(durations);
         strings.forEach(System.out::println);
